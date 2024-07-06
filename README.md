@@ -23,7 +23,7 @@ This script downloads financial disclosure data, checks for new trades involving
 ![image](https://github.com/abdkhan-git/trade-like-nancy/assets/81310252/56b9c3b7-a864-4c4f-95b2-58a395b00ed3)
 
 ## Video Demo
-![video](https://youtu.be/FH6rDpEqSJc)
+[Short Video Demo](https://youtu.be/FH6rDpEqSJc)
 
 ## Features
 
