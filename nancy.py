@@ -42,6 +42,7 @@ def send_email_notification(trades):
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
     APP_PASSWORD = os.getenv('APP_PASSWORD')
     RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
+
     subject = "New Nancy Pelosi Trades Detected"
     body = "New trades have been detected:\n\n"
 
@@ -92,7 +93,7 @@ def main():
                 last_trade_date = new_trades[0][0]
             
             last_check = current_time
-        time.sleep(60)
+        time.sleep(86400)
 
 if __name__ == "__main__":
     main()
