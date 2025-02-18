@@ -6,19 +6,17 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from smtplib import SMTPAuthenticationError, SMTPException
 
-zip_file_url = 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2024FD.zip'
-pdf_file_url = 'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2024/'
+zip_file_url = 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025FD.zip'
+pdf_file_url = 'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/'
 
 # Email configuration
 load_dotenv()
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-APP_PASSWORD = os.getenv("APP_PASSWORD")
-RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 
 def check_for_new_trades():
     r = requests.get(zip_file_url)
-    zipfile_name = '2024.zip'
+    zipfile_name = '2025FD.zip'
     with open(zipfile_name, 'wb') as f:
         f.write(r.content)
     
@@ -26,7 +24,7 @@ def check_for_new_trades():
         z.extractall('.')
     
     new_trades = []
-    with open('2024FD.txt') as f:
+    with open('2025FD.txt') as f:
         for line in csv.reader(f, delimiter='\t'):
             if line[1] == 'Pelosi':
                 dt = datetime.strptime(line[7], '%m/%d/%Y')
@@ -40,7 +38,10 @@ def check_for_new_trades():
 def send_email_notification(trades):
     if not trades:
         return
-
+    
+    SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+    APP_PASSWORD = os.getenv('APP_PASSWORD')
+    RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
     subject = "New Nancy Pelosi Trades Detected"
     body = "New trades have been detected:\n\n"
 
@@ -63,8 +64,12 @@ def send_email_notification(trades):
         server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, text)
         server.quit()
         print(f"Email notification sent for {len(trades)} trades")
+    except SMTPAuthenticationError:
+        print("Authentication failed. Check your email and app password.")
+    except SMTPException as e:
+        print(f"SMTP error occurred: {e}")
     except Exception as e:
-        print(f"Failed to send email notification: {e}")
+        print(f"An error occurred: {e}")
 
 def main():
     last_check = datetime.now() - timedelta(minutes=10)
@@ -82,6 +87,7 @@ def main():
                 new_trades = [trade for trade in all_trades if trade[0] > last_trade_date]
             
             if new_trades:
+                print(new_trades)
                 send_email_notification(new_trades)
                 last_trade_date = new_trades[0][0]
             
